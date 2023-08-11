@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1d3e59;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+}
+
+.board {
+    width: 320px;
+    height: 320px;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+
+}
+
+.cell {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    line-height: calc(50% - 400%);
+    border-radius: 10%;
+    font-size: 400%;
+    text-align: center;
+    background-color: #7dbb6d;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+}
+
+.restart-btn {
+    padding: 5% 10%;
+    font-size: 100%;
+    font-weight: bolder;
+    background-color: #7dbb6d;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 20%;
+    border-radius: 10px;
+}
