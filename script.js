@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // check empty rows
     function checkEmptyRows(gameBoard) {
         let Array = [];
-        [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((row) => {
+        [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row) => {
             let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
             if (rows.includes("") && rows.includes("O") && !rows.includes('X')) {
                 Array.push(row[0], row[2])
@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (gameBoard[4] == "") {
             gameBoard[4] = cells[4].innerHTML = currentPlayer;
             switchPlayers()
+
             return;
         } else if (checkEmptyCols(gameBoard).length || checkEmptyRows(gameBoard).length) {
             let cell = checkEmptyCols(gameBoard)[Math.floor(Math.random() * 2)] || checkEmptyRows(gameBoard)[Math.floor(Math.random() * 2)]
