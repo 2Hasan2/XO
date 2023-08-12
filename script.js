@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const game = document.getElementById('board')
     const cells = document.querySelectorAll("[data-cell]");
     const restartBtn = document.getElementById("restartBtn");
     let currentPlayer = "X";
     let gameBoard = ["", "", "", "", "", "", "", "", ""];
     let gameEnded = false;
 
+    // check win
     function checkWin(board) {
         const winPatterns = [
             [0, 1, 2],
@@ -27,6 +29,43 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
     }
 
+    // check empty cells
+    function checkEmpty(gameBoard) {
+        let Sides = [1, 3, 5, 7].filter((cell) => {
+            return gameBoard[cell] == ""
+        })
+        let Corners = [0, 2, 6, 8].filter((cell) => {
+            return gameBoard[cell] == ""
+
+        })
+        return { Corners, Sides };
+    }
+
+    // check empty rows
+    function checkEmptyRows(gameBoard) {
+        let Array = [];
+        [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((row) => {
+            let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
+            if (rows.includes("") && rows.includes("O") && !rows.includes('X')) {
+                Array.push(row[0], row[2])
+            }
+        })
+        return Array;
+    }
+
+    // check empty cols
+    function checkEmptyCols(gameBoard) {
+        let Array = [];
+        [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((col) => {
+            let cols = [gameBoard[col[0]], gameBoard[col[1]], gameBoard[col[2]]];
+            if (cols.includes("") && cols.includes("O") && !cols.includes('X')) {
+                Array.push(col[0], col[2])
+            }
+        })
+        return Array;
+    }
+
+    // player handle move
     function handleClick(event) {
         if (gameEnded) return;
         const cellIndex = Array.from(cells).indexOf(event.target);
@@ -40,58 +79,21 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (currentPlayer === "X") {
                 currentPlayer = "O";
-                setTimeout(computerMove, 500); // Introduce a delay for a better user experience
+                game.style.pointerEvents = "none"
+                setTimeout(computerMove, 200); // Introduce a delay for a better user experience
             } else {
                 currentPlayer = "X";
             }
         }
     }
 
-    function computerMove() {
-        if (gameEnded) return;
-        const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
 
-        // if the player play in the center, play in the corner
-        if (gameBoard[4] === "") {
-            gameBoard[4] = currentPlayer;
-            cells[4].innerText = currentPlayer;
-            if (checkWin(gameBoard)) {
-                gameEnded = true;
-                highlightWinningCells(gameBoard);
-                return;
-            }
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
+    // computer move
+    function computerMove() {
+        const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
+        if (gameEnded) {
             return;
-        } if (gameBoard[4] == "X" && gameBoard[0] == "" && gameBoard[2] == "" && gameBoard[6] == "" && gameBoard[8] == "") {
-            // play in any corner
-            const randomIndex = Math.floor(Math.random() * [0, 2, 6, 8].length);
-            gameBoard[[0, 2, 6, 8][randomIndex]] = currentPlayer;
-            cells[[0, 2, 6, 8][randomIndex]].innerText = currentPlayer;
-            if (checkWin(gameBoard)) {
-                gameEnded = true;
-                highlightWinningCells(gameBoard);
-                return;
-            }
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
-            return;
-        } if ((gameBoard[0] == "X" && gameBoard[8] == "X") || (gameBoard[2] == "X" && gameBoard[6] == "X")) {
-            // don't play in the corner
-            if (gameBoard[1] == "" && gameBoard[3] == "" && gameBoard[5] == "" && gameBoard[7] == "") {
-                // play in any side
-                const randomIndex = Math.floor(Math.random() * [1, 3, 5, 7].length);
-                gameBoard[[1, 3, 5, 7][randomIndex]] = currentPlayer;
-                cells[[1, 3, 5, 7][randomIndex]].innerText = currentPlayer;
-                if (checkWin(gameBoard)) {
-                    gameEnded = true;
-                    highlightWinningCells(gameBoard);
-                    return;
-                }
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                return;
-            }
-        }
-        else {
-            // Check for potential winning move for computer
+        } else {
             for (const cellIndex of emptyCells) {
                 const tempBoard = [...gameBoard];
                 tempBoard[cellIndex] = currentPlayer;
@@ -102,12 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     highlightWinningCells(gameBoard);
                     return;
                 }
-
             }
 
         }
-
-        // Check for potential blocking move for human player
         const opponent = currentPlayer === "X" ? "O" : "X";
         for (const cellIndex of emptyCells) {
             const tempBoard = [...gameBoard];
@@ -120,26 +119,38 @@ document.addEventListener("DOMContentLoaded", () => {
                     highlightWinningCells(gameBoard);
                     return;
                 }
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                switchPlayers()
                 return;
             }
         }
 
-        // If no winning move or blocking move, make a random move
-        if (emptyCells.length > 0) {
-            const randomIndex = Math.floor(Math.random() * emptyCells.length);
-            const cellIndex = emptyCells[randomIndex];
-            gameBoard[cellIndex] = currentPlayer;
-            cells[cellIndex].innerText = currentPlayer;
-            if (checkWin(gameBoard)) {
-                gameEnded = true;
-                highlightWinningCells(gameBoard);
-                return;
-            }
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
+        if (gameBoard[4] == "") {
+            gameBoard[4] = cells[4].innerHTML = currentPlayer;
+            switchPlayers()
+            return;
+        } else if (checkEmptyCols(gameBoard).length || checkEmptyRows(gameBoard).length) {
+            let cell = checkEmptyCols(gameBoard)[Math.floor(Math.random() * 2)] || checkEmptyRows(gameBoard)[Math.floor(Math.random() * 2)]
+            gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
+            switchPlayers()
+            return;
+
+        } else if (gameBoard[0] == "" || gameBoard[2] == "" || gameBoard[6] == "" || gameBoard[8] == "") {
+            let cell = checkEmpty(gameBoard).Corners[Math.floor(Math.random() * checkEmpty(gameBoard).Corners.length)]
+            gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
+            switchPlayers()
+            return;
         }
     }
 
+
+    // switch Player
+    function switchPlayers() {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        game.style.pointerEvents = "auto"
+    }
+
+
+    // color the winer red or green
     function highlightWinningCells(board) {
         const winPatterns = [
             [0, 1, 2],
@@ -170,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
+    // restart
     function handleRestart() {
         gameBoard = ["", "", "", "", "", "", "", "", ""];
         cells.forEach(cell => {
@@ -179,6 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         currentPlayer = "X";
         gameEnded = false;
+        game.style.pointerEvents = "auto"
+
     }
 
     cells.forEach(cell => cell.addEventListener("click", handleClick));
