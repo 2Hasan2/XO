@@ -11,6 +11,8 @@ body {
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
     text-align: center;
 }
 
@@ -39,7 +41,7 @@ body {
 
 .restart-btn {
     padding: 5% 10%;
-    font-size: 100%;
+    font-size: 80%;
     font-weight: bolder;
     background-color: #7dbb6d;
     border: none;
@@ -47,4 +49,27 @@ body {
     cursor: pointer;
     margin-top: 20%;
     border-radius: 10px;
+}
+
+.score {
+    display: flex;
+    margin: 20px;
+    background-color: #7dbb6d;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: nowrap;
+    display: flex;
+    margin: 20px;
+    background-color: #7dbb6d;
+    gap: 20px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }

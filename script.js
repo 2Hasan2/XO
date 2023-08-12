@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const game = document.getElementById('board')
     const cells = document.querySelectorAll("[data-cell]");
     const restartBtn = document.getElementById("restartBtn");
+    const divLose = document.getElementById("lose");
+    const divWin = document.getElementById("win");
+    divLose.innerHTML = localStorage.getItem("lose") || 0;
+    divWin.innerHTML = localStorage.getItem("win") || 0;
     let currentPlayer = "X";
     let gameBoard = ["", "", "", "", "", "", "", "", ""];
     let gameEnded = false;
@@ -168,8 +172,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                 let wincolor = "#6def4c";
                 if (board[a] === "X") {
+                    // local store win and save it if exist else set it to 0 and add 1 and create a new one
+                    let win = localStorage.getItem("win") ? localStorage.getItem("win") : 0;
+                    win++;
+                    localStorage.setItem("win", win);
+                    divWin.innerHTML = win;
                     wincolor = "#00ff00";
                 } else {
+                    // local store lose and save it if exist else set it to 0 and add 1 and create a new one
+                    let lose = localStorage.getItem("lose") ? localStorage.getItem("lose") : 0;
+                    lose++;
+                    localStorage.setItem("lose", lose);
+                    divLose.innerHTML = lose;
                     wincolor = "#ff0000";
                 }
 
