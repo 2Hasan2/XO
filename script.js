@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     cells[cellIndex].innerText = currentPlayer;
                     gameEnded = true;
                     highlightWinningCells(gameBoard);
+                    console.log("win move");
                     return;
                 }
             }
@@ -123,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     highlightWinningCells(gameBoard);
                     return;
                 }
+                console.log("block move");
                 switchPlayers()
                 return;
             }
@@ -131,19 +133,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (gameBoard[4] == "") {
             gameBoard[4] = cells[4].innerHTML = currentPlayer;
             switchPlayers()
-
+            console.log("center move");
             return;
         } else if (checkEmptyCols(gameBoard).length || checkEmptyRows(gameBoard).length) {
-            let cell = checkEmptyCols(gameBoard)[Math.floor(Math.random() * 2)] || checkEmptyRows(gameBoard)[Math.floor(Math.random() * 2)]
-            gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
+            // make a move in empty row or col and the cell is empty
+            let cell = checkEmptyCols(gameBoard).concat(checkEmptyRows(gameBoard)).filter((cell) => {
+                return gameBoard[cell] == ""
+            })
+            gameBoard[cell[0]] = cells[cell[0]].innerHTML = currentPlayer;
             switchPlayers()
+            console.log("row or col move");
             return;
 
         } else if (gameBoard[0] == "" || gameBoard[2] == "" || gameBoard[6] == "" || gameBoard[8] == "") {
+            console.log("corner move");
             let cell = checkEmpty(gameBoard).Corners[Math.floor(Math.random() * checkEmpty(gameBoard).Corners.length)]
             gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
             switchPlayers()
             return;
+        } else {
+            // random move in any empty cell
+            const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            const cellIndex = emptyCells[randomIndex];
+            gameBoard[cellIndex] = cells[cellIndex].innerHTML = currentPlayer;
+            gameBoard
+            console.log("random move");
+            switchPlayers()
+            return;
+
         }
     }
 
@@ -198,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // restart
     function handleRestart() {
+        console.clear();
         gameBoard = ["", "", "", "", "", "", "", "", ""];
         cells.forEach(cell => {
             cell.innerText = "";
