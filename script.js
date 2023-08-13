@@ -9,6 +9,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentPlayer = "X";
     let gameBoard = ["", "", "", "", "", "", "", "", ""];
     let gameEnded = false;
+    const winPatterns = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
 
     // check win
     function checkWin(board) {
@@ -46,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // check empty rows
-    function checkEmptyRows(gameBoard) {
+    function checkEmptyRows_2(gameBoard) {
         let Array = [];
         [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row) => {
             let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
@@ -58,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // check empty cols
-    function checkEmptyCols(gameBoard) {
+    function checkEmptyCols_2(gameBoard) {
         let Array = [];
         [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((col) => {
             let cols = [gameBoard[col[0]], gameBoard[col[1]], gameBoard[col[2]]];
@@ -68,6 +78,20 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         return Array;
     }
+
+    // function to return empty rows
+    function checkEmptyRow(gameBoard) {
+        let array;
+        [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row, i) => {
+            let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
+            if (!(rows.includes('X') || rows.includes('O')) && rows.includes("")) {
+                array = [[0, 1, 2], [3, 4, 5], [6, 7, 8]][i]
+            }
+        })
+        return array || false;
+    }
+    // function to return empty cols
+
 
     // player handle move
     function handleClick(event) {
@@ -135,16 +159,26 @@ document.addEventListener("DOMContentLoaded", () => {
             switchPlayers()
             console.log("center move");
             return;
-        } else if (checkEmptyCols(gameBoard).length || checkEmptyRows(gameBoard).length) {
+        } else if (checkEmptyCols_2(gameBoard).length || checkEmptyRows_2(gameBoard).length) {
             // make a move in empty row or col and the cell is empty
-            let cell = checkEmptyCols(gameBoard).concat(checkEmptyRows(gameBoard)).filter((cell) => {
-                return gameBoard[cell] == ""
-            })
-            gameBoard[cell[0]] = cells[cell[0]].innerHTML = currentPlayer;
-            switchPlayers()
-            console.log("row or col move");
-            return;
+            let cell = checkEmptyCols_2(gameBoard).concat(checkEmptyRows_2(gameBoard)).filter((cell) => {
 
+                if (checkEmptyRow(gameBoard) && checkEmptyRow(gameBoard).includes(cell)) {
+                    return cell || '';
+                }
+            })
+            if (cell != "") {
+                gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
+                console.log("row or col move");
+                switchPlayers()
+                return;
+            } else {
+                let cell = checkEmpty(gameBoard).Sides[Math.floor(Math.random() * checkEmpty(gameBoard).Sides.length)]
+                gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
+                console.log("side move");
+                switchPlayers()
+                return;
+            }
         } else if (gameBoard[0] == "" || gameBoard[2] == "" || gameBoard[6] == "" || gameBoard[8] == "") {
             console.log("corner move");
             let cell = checkEmpty(gameBoard).Corners[Math.floor(Math.random() * checkEmpty(gameBoard).Corners.length)]
