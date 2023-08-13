@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // computer move
     function computerMove() {
         const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
-        if (gameEnded) {
+        if (gameEnded || emptyCells.length === 0) {
             return;
         } else {
             for (const cellIndex of emptyCells) {
