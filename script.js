@@ -28,6 +28,14 @@ const winPatterns = [
     [2, 4, 6]
 ];
 
+// make random start for computer or player
+if (Math.floor(Math.random() * 2) == 1) {
+    switchPlayer()
+    computerMove()
+}
+
+
+
 function updateGameboard(cells) {
     cells.forEach((cell, i) => {
         gameboard[i] = cell.innerHTML
@@ -242,6 +250,10 @@ function restart() {
 restart_btn.addEventListener('click', () => {
     if (isFullBoard() || checkWin()) {
         restart()
+        if (Math.floor(Math.random() * 2) == 1) {
+            Player = "O"
+            computerMove()
+        }
     }
 })
 
