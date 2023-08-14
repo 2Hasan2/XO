@@ -1,268 +1,249 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const game = document.getElementById('board')
-    const cells = document.querySelectorAll("[data-cell]");
-    const restartBtn = document.getElementById("restartBtn");
-    const divLose = document.getElementById("lose");
-    const divWin = document.getElementById("win");
-    divLose.innerHTML = localStorage.getItem("lose") || 0;
-    divWin.innerHTML = localStorage.getItem("win") || 0;
-    let currentPlayer = "X";
-    let gameBoard = ["", "", "", "", "", "", "", "", ""];
-    let gameEnded = false;
-    const winPatterns = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
+const cells = document.querySelectorAll("[data-cell]");
+const game = document.querySelector('.game')
+const restart_btn = document.querySelector('.restart')
+const divLose = document.getElementById("lose");
+const divWin = document.getElementById("win");
+divLose.innerHTML = localStorage.getItem("Lose") || 0;
+divWin.innerHTML = localStorage.getItem("Win") || 0;
+let Player = "X"
+let gameboard = [
+    '', '', '',
+    '', '', '',
+    '', '', ''
+];
+let gameboard2D = [
+    ['', '', ''],
+    ['', '', ''],
+    ['', '', '']
+];
 
-    // check win
-    function checkWin(board) {
-        const winPatterns = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
+const winPatterns = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
 
-        for (const pattern of winPatterns) {
-            const [a, b, c] = pattern;
-            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                return true;
-            }
+function updateGameboard(cells) {
+    cells.forEach((cell, i) => {
+        gameboard[i] = cell.innerHTML
+        gameboard2D[Math.floor(i / 3)][(i >= 3 ? i % 3 : i)] = cell.innerHTML;
+    });
+};
+
+
+cells.forEach((cell) => [
+    cell.addEventListener("click", () => {
+
+        if (!checkWin() && cell.innerHTML == '') {
+            cell.innerHTML = Player
+            switchPlayer()
+            updateGameboard(cells);
+            game.style.pointerEvents = "none"
+            setTimeout(() => {
+                computerMove()
+                game.style.pointerEvents = "auto"
+            }, Math.ceil(Math.random() * 200) + 300)
+
         }
+    })
+])
 
-        return false;
-    }
-
-    // check empty cells
-    function checkEmpty(gameBoard) {
-        let Sides = [1, 3, 5, 7].filter((cell) => {
-            return gameBoard[cell] == ""
-        })
-        let Corners = [0, 2, 6, 8].filter((cell) => {
-            return gameBoard[cell] == ""
-
-        })
-        return { Corners, Sides };
-    }
-
-    // check empty rows
-    function checkEmptyRows_2(gameBoard) {
-        let Array = [];
-        [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row) => {
-            let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
-            if (rows.includes("") && rows.includes("O") && !rows.includes('X')) {
-                Array.push(row[0], row[2])
-            }
-        })
-        return Array;
-    }
-
-    // check empty cols
-    function checkEmptyCols_2(gameBoard) {
-        let Array = [];
-        [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((col) => {
-            let cols = [gameBoard[col[0]], gameBoard[col[1]], gameBoard[col[2]]];
-            if (cols.includes("") && cols.includes("O") && !cols.includes('X')) {
-                Array.push(col[0], col[2])
-            }
-        })
-        return Array;
-    }
-
-    // function to return empty rows
-    function checkEmptyRow(gameBoard) {
-        let array;
-        [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row, i) => {
-            let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
-            if (!(rows.includes('X') || rows.includes('O')) && rows.includes("")) {
-                array = [[0, 1, 2], [3, 4, 5], [6, 7, 8]][i]
-            }
-        })
-        return array || false;
-    }
-    // function to return empty cols
+function switchPlayer() {
+    Player = Player == "X" ? "O" : "X";
+}
 
 
-    // player handle move
-    function handleClick(event) {
-        if (gameEnded) return;
-        const cellIndex = Array.from(cells).indexOf(event.target);
-        if (gameBoard[cellIndex] === "") {
-            gameBoard[cellIndex] = currentPlayer;
-            event.target.innerText = currentPlayer;
-            if (checkWin(gameBoard)) {
-                gameEnded = true;
-                highlightWinningCells(gameBoard);
-                return;
-            }
-            if (currentPlayer === "X") {
-                currentPlayer = "O";
-                game.style.pointerEvents = "none"
-                setTimeout(computerMove, 200); // Introduce a delay for a better user experience
+function checkWin() {
+
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (gameboard[a] && gameboard[a] === gameboard[b] && gameboard[a] === gameboard[c]) {
+            let wincolor = "#6def4c";
+            if (gameboard[a] == "X") {
+                // local store win and save it if exist else set it to 0 and add 1 and create a new one
+                let win = localStorage.getItem("Win") ? localStorage.getItem("Win") : 0;
+                win++;
+                localStorage.setItem("Win", win);
+                divWin.innerHTML = win;
+                wincolor = "#00ff00";
             } else {
-                currentPlayer = "X";
+                // local store lose and save it if exist else set it to 0 and add 1 and create a new one
+                let lose = localStorage.getItem("Lose") ? localStorage.getItem("Lose") : 0;
+                lose++;
+                localStorage.setItem("Lose", lose);
+                divLose.innerHTML = lose;
+                wincolor = "#ff0000";
             }
+
+            cells[a].style.backgroundColor = wincolor;
+            cells[b].style.backgroundColor = wincolor;
+            cells[c].style.backgroundColor = wincolor;
+            return true;
         }
     }
 
+    return false;
+}
 
-    // computer move
-    function computerMove() {
-        const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
-        if (gameEnded || emptyCells.length === 0) {
-            return;
-        } else {
-            for (const cellIndex of emptyCells) {
-                const tempBoard = [...gameBoard];
-                tempBoard[cellIndex] = currentPlayer;
-                if (checkWin(tempBoard)) {
-                    gameBoard[cellIndex] = currentPlayer;
-                    cells[cellIndex].innerText = currentPlayer;
-                    gameEnded = true;
-                    highlightWinningCells(gameBoard);
-                    console.log("win move");
-                    return;
-                }
-            }
+function computerMove() {
+    if (checkToBlock(gameboard) != null) {
+        computerClick(checkToBlock(gameboard))
+    } else if (gameboard[4] == "") {
+        computerClick(4)
+    } else if (nextStep(gameboard2D) == 2) {
+        let cells = [...checkEmptyRows_2(gameboard), ...checkEmptyCols_2(gameboard)];
+        computerClick(cells[Math.floor(Math.random() * cells.length)])
+    } else if (nextStep(gameboard2D) == false && gameboard[4] == 'O') {
+        let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
+        computerClick(cells[Math.floor(Math.random() * cells.length)])
+    } else if (typeof nextStep(gameboard2D) == 'object') {
+        computerClick(nextStep(gameboard2D).row * 3 + nextStep(gameboard2D).cell)
+    } else if (gameboard[4] == 'X' && checkEmpty(gameboard).num == 8) {
+        computerClick(checkEmpty(gameboard).Corners[Math.floor(Math.random() * checkEmpty(gameboard).Corners.length)]);
+    } else {
+        let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
+        computerClick(cells[Math.floor(Math.random() * cells.length)])
+    }
+    checkWin()
+}
 
-        }
-        const opponent = currentPlayer === "X" ? "O" : "X";
-        for (const cellIndex of emptyCells) {
-            const tempBoard = [...gameBoard];
-            tempBoard[cellIndex] = opponent;
-            if (checkWin(tempBoard)) {
-                gameBoard[cellIndex] = currentPlayer;
-                cells[cellIndex].innerText = currentPlayer;
-                if (checkWin(gameBoard)) {
-                    gameEnded = true;
-                    highlightWinningCells(gameBoard);
-                    return;
-                }
-                console.log("block move");
-                switchPlayers()
-                return;
-            }
-        }
+function nextStep(gameboard2D) {
+    let connection = []
+    function checkRows(board) {
+        let rows = [];
+        board.forEach((row, i) => {
+            row.join("") == 'X' ? rows.push({ i, row }) : null
+        })
+        return rows;
+    }
+    function checkColumns(board) {
+        let columns = [];
+        board.forEach((column, i) => {
 
-        if (gameBoard[4] == "") {
-            gameBoard[4] = cells[4].innerHTML = currentPlayer;
-            switchPlayers()
-            console.log("center move");
-            return;
-        } else if (checkEmptyCols_2(gameBoard).length || checkEmptyRows_2(gameBoard).length) {
-            // make a move in empty row or col and the cell is empty
-            let cell = checkEmptyCols_2(gameBoard).concat(checkEmptyRows_2(gameBoard)).filter((cell) => {
+            column.join("") == 'X' ? columns.push({ i, column }) : null
+        })
+        return columns;
 
-                if (checkEmptyRow(gameBoard) && checkEmptyRow(gameBoard).includes(cell)) {
-                    return cell || '';
-                }
-            })
-            if (cell != "") {
-                gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
-                console.log("row or col move");
-                switchPlayers()
-                return;
+    };
+    // create prototype method name "rotate()" rotating 90 to right 
+    Array.prototype.rotate = function () {
+        const numRows = this.length;
+        const numCols = this[0].length;
+
+        const rotatedMatrix = []
+        this[0].forEach((_, col) => {
+            const newRow = []
+            this.forEach(row => {
+                newRow.push(row[col])
+            });
+            rotatedMatrix.push(newRow)
+        })
+
+        return rotatedMatrix;
+    }
+    let rows = checkRows(gameboard2D)
+    let cols = checkColumns(gameboard2D.rotate())
+    rows.forEach(row => {
+        cols.forEach(col => {
+            col.column[row.i] == "X" ? false : connection.push({ row, col })
+        })
+    })
+
+    if (connection.length == 1) {
+        return { row: connection[0].row.i, cell: connection[0].col.i }
+    } else if (connection.length == 2) {
+        return connection.length
+    } else {
+
+        return false
+    }
+}
+
+// check empty cells
+function checkEmpty(gameBoard) {
+    let Sides = [1, 3, 5, 7].filter((cell) => {
+        return gameBoard[cell] == ""
+    })
+    let Corners = [0, 2, 6, 8].filter((cell) => {
+        return gameBoard[cell] == ""
+
+    })
+    return { Corners, Sides, num: [...Sides, ...Corners].length };
+}
+
+function checkEmptyRows_2(gameBoard) {
+    let Array = [];
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row) => {
+        let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
+        if (rows.includes("") && rows.includes("O") && !rows.includes('X')) {
+            if ([0, 2, 7, 8].includes(row[rows.indexOf('')])) {
+                Array.push(row[rows.indexOf("")])
             } else {
-                let cell = checkEmpty(gameBoard).Sides[Math.floor(Math.random() * checkEmpty(gameBoard).Sides.length)]
-                gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
-                console.log("side move");
-                switchPlayers()
-                return;
-            }
-        } else if (gameBoard[0] == "" || gameBoard[2] == "" || gameBoard[6] == "" || gameBoard[8] == "") {
-            console.log("corner move");
-            let cell = checkEmpty(gameBoard).Corners[Math.floor(Math.random() * checkEmpty(gameBoard).Corners.length)]
-            gameBoard[cell] = cells[cell].innerHTML = currentPlayer;
-            switchPlayers()
-            return;
-        } else {
-            // random move in any empty cell
-            const emptyCells = gameBoard.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
-            const randomIndex = Math.floor(Math.random() * emptyCells.length);
-            const cellIndex = emptyCells[randomIndex];
-            gameBoard[cellIndex] = cells[cellIndex].innerHTML = currentPlayer;
-            gameBoard
-            console.log("random move");
-            switchPlayers()
-            return;
-
-        }
-    }
-
-
-    // switch Player
-    function switchPlayers() {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        game.style.pointerEvents = "auto"
-    }
-
-
-    // color the winer red or green
-    function highlightWinningCells(board) {
-        const winPatterns = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
-
-        for (const pattern of winPatterns) {
-            const [a, b, c] = pattern;
-            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                let wincolor = "#6def4c";
-                if (board[a] === "X") {
-                    // local store win and save it if exist else set it to 0 and add 1 and create a new one
-                    let win = localStorage.getItem("win") ? localStorage.getItem("win") : 0;
-                    win++;
-                    localStorage.setItem("win", win);
-                    divWin.innerHTML = win;
-                    wincolor = "#00ff00";
-                } else {
-                    // local store lose and save it if exist else set it to 0 and add 1 and create a new one
-                    let lose = localStorage.getItem("lose") ? localStorage.getItem("lose") : 0;
-                    lose++;
-                    localStorage.setItem("lose", lose);
-                    divLose.innerHTML = lose;
-                    wincolor = "#ff0000";
-                }
-
-
-                cells[a].style.backgroundColor = wincolor;
-                cells[b].style.backgroundColor = wincolor;
-                cells[c].style.backgroundColor = wincolor;
+                Array.push(row[rows.lastIndexOf("")])
             }
         }
+    })
+    return Array;
+}
+
+function checkEmptyCols_2(gameBoard) {
+    let Array = [];
+    [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((col) => {
+        let cols = [gameBoard[col[0]], gameBoard[col[1]], gameBoard[col[2]]];
+        if (cols.includes("") && cols.includes("O") && !cols.includes('X')) {
+            if ([0, 2, 7, 8].includes(col[cols.indexOf('')])) {
+                Array.push(col[cols.indexOf("")])
+            } else {
+                Array.push(col[cols.lastIndexOf("")])
+            }
+
+        }
+    })
+    return Array;
+}
+
+function checkToBlock(gameBoard) {
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if ((gameBoard[a] != '' && gameBoard[a] == gameBoard[b] != '' && gameBoard[c] == '') || (gameBoard[a] != '' && gameBoard[a] == gameBoard[c] != '' && gameBoard[b] == '') || (gameBoard[b] != '' && gameBoard[b] == gameBoard[c] && gameBoard[a] == '')) {
+            return pattern[[gameBoard[a], gameBoard[b], gameBoard[c]].indexOf('')];
+        }
     }
+    return null;
+}
 
-    // restart
-    function handleRestart() {
-        console.clear();
-        gameBoard = ["", "", "", "", "", "", "", "", ""];
-        cells.forEach(cell => {
-            cell.innerText = "";
-            cell.style.backgroundColor = "#7dbb6d";
-        });
-        currentPlayer = "X";
-        gameEnded = false;
-        game.style.pointerEvents = "auto"
+function computerClick(num) {
+    cells.forEach((cell, i) => {
+        if (i == num) {
 
+            cell.innerHTML = Player
+            switchPlayer()
+            updateGameboard(cells);
+        }
+    })
+}
+
+function restart() {
+    cells.forEach((cell) => {
+        cell.innerHTML = ''
+        Player = "X"
+        cell.style.backgroundColor = "#7dbb6d";
+        updateGameboard(cells)
+    })
+
+}
+
+restart_btn.addEventListener('click', () => {
+    if (isFullBoard() || checkWin()) {
+        restart()
     }
+})
 
-    cells.forEach(cell => cell.addEventListener("click", handleClick));
-    restartBtn.addEventListener("click", handleRestart);
-
-});
+function isFullBoard() {
+    return [...cells].map(cell => { return cell.innerHTML }).includes('') ? false : true;
+} 
