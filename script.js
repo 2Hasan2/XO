@@ -96,7 +96,9 @@ function computerMove() {
     } else if (gameboard[4] == "") {
         computerClick(4)
     } else if (nextStep(gameboard2D) == 2) {
-        let cells = [...checkEmptyRows_2(gameboard), ...checkEmptyCols_2(gameboard)];
+        let cells = [...checkEmpty(gameboard).Corners];
+        console.log(cells);
+        console.log("yes");
         computerClick(cells[Math.floor(Math.random() * cells.length)])
     } else if (nextStep(gameboard2D) == false && gameboard[4] == 'O') {
         let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
