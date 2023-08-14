@@ -95,10 +95,9 @@ function computerMove() {
         computerClick(checkToBlock(gameboard))
     } else if (gameboard[4] == "") {
         computerClick(4)
-    } else if (nextStep(gameboard2D) == 2) {
-        let cells = [...checkEmpty(gameboard).Corners];
+    } else if (nextStep(gameboard2D).len == 2) {
+        let cells = [...checkEmptyRows_2(gameboard), ...checkEmptyCols_2(gameboard)];
         console.log(cells);
-        console.log("yes");
         computerClick(cells[Math.floor(Math.random() * cells.length)])
     } else if (nextStep(gameboard2D) == false && gameboard[4] == 'O') {
         let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
@@ -159,7 +158,7 @@ function nextStep(gameboard2D) {
     if (connection.length == 1) {
         return { row: connection[0].row.i, cell: connection[0].col.i }
     } else if (connection.length == 2) {
-        return connection.length
+        return { len: connection.length, connection }
     } else {
 
         return false
@@ -183,7 +182,7 @@ function checkEmptyRows_2(gameBoard) {
     [[0, 1, 2], [3, 4, 5], [6, 7, 8],].forEach((row) => {
         let rows = [gameBoard[row[0]], gameBoard[row[1]], gameBoard[row[2]]];
         if (rows.includes("") && rows.includes("O") && !rows.includes('X')) {
-            if ([0, 2, 7, 8].includes(row[rows.indexOf('')])) {
+            if ([0, 2, 6, 8].includes(row[rows.indexOf('')])) {
                 Array.push(row[rows.indexOf("")])
             } else {
                 Array.push(row[rows.lastIndexOf("")])
@@ -198,7 +197,7 @@ function checkEmptyCols_2(gameBoard) {
     [[0, 3, 6], [1, 4, 7], [2, 5, 8],].forEach((col) => {
         let cols = [gameBoard[col[0]], gameBoard[col[1]], gameBoard[col[2]]];
         if (cols.includes("") && cols.includes("O") && !cols.includes('X')) {
-            if ([0, 2, 7, 8].includes(col[cols.indexOf('')])) {
+            if ([0, 2, 6, 8].includes(col[cols.indexOf('')])) {
                 Array.push(col[cols.indexOf("")])
             } else {
                 Array.push(col[cols.lastIndexOf("")])
