@@ -5,6 +5,7 @@ const divLose = document.getElementById("lose");
 const divWin = document.getElementById("win");
 divLose.innerHTML = localStorage.getItem("Lose") || 0;
 divWin.innerHTML = localStorage.getItem("Win") || 0;
+let endGame = false;
 let Player = "X"
 let gameboard = [
     '', '', '',
@@ -47,7 +48,7 @@ function updateGameboard(cells) {
 cells.forEach((cell) => [
     cell.addEventListener("click", () => {
 
-        if (!checkWin() && cell.innerHTML == '') {
+        if (!endGame && cell.innerHTML == '') {
             cell.innerHTML = Player
             switchPlayer()
             updateGameboard(cells);
@@ -67,31 +68,34 @@ function switchPlayer() {
 
 
 function checkWin() {
+    if (!endGame) {
 
-    for (const pattern of winPatterns) {
-        const [a, b, c] = pattern;
-        if (gameboard[a] && gameboard[a] === gameboard[b] && gameboard[a] === gameboard[c]) {
-            let wincolor = "#6def4c";
-            if (gameboard[a] == "X") {
-                // local store win and save it if exist else set it to 0 and add 1 and create a new one
-                let win = localStorage.getItem("Win") ? localStorage.getItem("Win") : 0;
-                win++;
-                localStorage.setItem("Win", win);
-                divWin.innerHTML = win;
-                wincolor = "#00ff00";
-            } else {
-                // local store lose and save it if exist else set it to 0 and add 1 and create a new one
-                let lose = localStorage.getItem("Lose") ? localStorage.getItem("Lose") : 0;
-                lose++;
-                localStorage.setItem("Lose", lose);
-                divLose.innerHTML = lose;
-                wincolor = "#ff0000";
+        for (const pattern of winPatterns) {
+            const [a, b, c] = pattern;
+            if (gameboard[a] && gameboard[a] === gameboard[b] && gameboard[a] === gameboard[c]) {
+                let wincolor = "#6def4c";
+                if (gameboard[a] == "X") {
+                    // local store win and save it if exist else set it to 0 and add 1 and create a new one
+                    let win = localStorage.getItem("Win") ? localStorage.getItem("Win") : 0;
+                    win++;
+                    localStorage.setItem("Win", win);
+                    divWin.innerHTML = win;
+                    wincolor = "#00ff00";
+                } else {
+                    // local store lose and save it if exist else set it to 0 and add 1 and create a new one
+                    let lose = localStorage.getItem("Lose") ? localStorage.getItem("Lose") : 0;
+                    lose++;
+                    localStorage.setItem("Lose", lose);
+                    divLose.innerHTML = lose;
+                    wincolor = "#ff0000";
+                }
+
+                cells[a].style.backgroundColor = wincolor;
+                cells[b].style.backgroundColor = wincolor;
+                cells[c].style.backgroundColor = wincolor;
+                endGame = true
+                return true;
             }
-
-            cells[a].style.backgroundColor = wincolor;
-            cells[b].style.backgroundColor = wincolor;
-            cells[c].style.backgroundColor = wincolor;
-            return true;
         }
     }
 
@@ -239,6 +243,7 @@ function computerClick(num) {
 
 function restart() {
     cells.forEach((cell) => {
+        endGame = false;
         cell.innerHTML = ''
         Player = "X"
         cell.style.backgroundColor = "#7dbb6d";
@@ -248,7 +253,7 @@ function restart() {
 }
 
 restart_btn.addEventListener('click', () => {
-    if (isFullBoard() || checkWin()) {
+    if (isFullBoard() || endGame) {
         restart()
         if (Math.floor(Math.random() * 2) == 1) {
             Player = "O"
