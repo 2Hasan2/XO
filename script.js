@@ -103,27 +103,48 @@ function checkWin() {
 }
 
 function computerMove() {
-    if (checkToBlock(gameboard) != null) {
+    if (checkToWin(gameboard)) {
+        computerClick(checkToWin(gameboard))
+        console.log("win");
+    }
+    else if (checkToBlock(gameboard) != null) {
         computerClick(checkToBlock(gameboard))
+        console.log("block");
     } else if (gameboard[4] == "") {
         computerClick(4)
+        console.log("center");
     } else if (nextStep(gameboard2D).len == 2) {
         let cells = [...checkEmptyRows_2(gameboard), ...checkEmptyCols_2(gameboard)];
-        console.log(cells);
+        console.log('next 2 step');
         computerClick(cells[Math.floor(Math.random() * cells.length)])
     } else if (nextStep(gameboard2D) == false && gameboard[4] == 'O') {
         let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
         computerClick(cells[Math.floor(Math.random() * cells.length)])
+        console.log('next step');
     } else if (typeof nextStep(gameboard2D) == 'object') {
         computerClick(nextStep(gameboard2D).row * 3 + nextStep(gameboard2D).cell)
+        console.log('next step #');
     } else if (gameboard[4] == 'X' && checkEmpty(gameboard).num == 8) {
         computerClick(checkEmpty(gameboard).Corners[Math.floor(Math.random() * checkEmpty(gameboard).Corners.length)]);
+        console.log('corners');
     } else {
         let cells = [...checkEmpty(gameboard).Corners, ...checkEmpty(gameboard).Sides];
         computerClick(cells[Math.floor(Math.random() * cells.length)])
+        console.log('random');
     }
     checkWin()
 }
+
+function checkToWin(gameBoard) {
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if ((gameBoard[a] == gameBoard[b] && gameBoard[a] == 'O' && gameBoard[c] == '') || (gameBoard[a] == gameBoard[c] && gameBoard[a] == 'O' && gameBoard[b] == '') || (gameBoard[b] == gameBoard[c] && gameBoard[b] == 'O' && gameBoard[a] == '')) {
+            return pattern[[gameBoard[a], gameBoard[b], gameBoard[c]].indexOf('')];
+        }
+    }
+    return null;
+}
+
 
 function nextStep(gameboard2D) {
     let connection = []
